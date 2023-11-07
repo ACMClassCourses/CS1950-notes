@@ -1,0 +1,93 @@
+问题 1.
+
+寻找 n 个数中的第 k 小数字：
+
+Plan 1. 排序 太浪费了! O(n log n)
+
+Plan 2. 第一次选出第一小，第二次第二小，......复杂度 O(nk)。
+
+Plan 3. 分治。
+
+选出一个 value v 之后，我看一下比 v 小的有哪些，这样可以知道第 k 小的落在哪个部分。
+
+最坏时间复杂度：T(n) <= O(n) + max{T(|L|), T(|R|)} <= O(n-1) +T(n-1).... = O(n^2)。
+
+但是快排是对的。为什么呢？
+
+方案 1. 考虑到若我们非常幸运，每次 v 都在中间，则复杂度等比数列求和，O(n)。
+
+若我们比较幸运，v 落在 [n/3, 2n/3] 区间内，则复杂度 T(n) <= O(n) +T(2n/3)。
+
+Idea：通过随机，使得我们合理地幸运。
+
+如何正确地估计复杂度：
+
+不妨设 [n/4,3n/4] 区间是好的。
+
+\tau(n) := Time we refuce n to 3n/4。
+
+T(n) = \tau(n) +T(3n/4)。
+
+E(T(n)) = E(\tau(n)) +E(T(3n/4)).
+
+E(\tau(n))？(1+1/2+1/4+1/8+...) O(n) = O(n)。（这已经是上界估计，实际是很难达到的）
+
+
+方案二：有没有不用随机，期望的方法？Medians of medians（1973）
+
+How to pick a GOOD pivot？（中间元素）其他操作和分治一样。
+
+1. Partition S into subsets with size 5.
+
+2. Find the medians of them. (each in O(1))。
+
+3. Find the medians of the medians？
+
+So v is no greater than 3n/10 integers, no less than 3n/10 integers.
+
+How to do step 3?
+
+递归调用 (S, k)。
+
+T(n) <= T(0.2n) +T(0.7n) +O(n)。
+
+Guess: T(n) is linear。T(n) <= Bn。设 O(n) <= Cn。
+
+则 T(n) <= 0.9Bn+Cn<= Bn（只要 B>=10C）。
+
+这个算法达成了某种平衡：原本 pivot T(1) 而划分出来的长 T(n-1)，现在。。。
+
+并且，把 5 换成 3 的话，就完了，变成 n log n 了。
+
+
+二
+
+如何判断多项式 f(x)，g(x) 是否全等？给定 f(x) 的系数表达式和 g(x) 的因式分解表达式。
+
+暴力展开 g(x)：FFT n log n。
+
+More clever and faster？允许有错误概率 p。
+
+Select c0, c1, c2... cd then check：f(c_i) = g(c_i)。
+
+Choose S of Size 100d，randomly pick x from S. check if f(x) = g(x)，answer equivalent or not.
+
+WHY？f(x) - g(x) has at most d roots, so the probability of wrong is at most 1/100。
+
+if wrong prob should be at most 1/10000？做两次即可。
+
+概率只是一个数学模型，需要一个良好的定义：
+
+1. 如随机选择一个正整数是不合法的，因为不存在 Z+ 上的均匀的概率分布；
+
+2. 两个盒子有 x 块钱和 x/2 块钱，随机地放 x 块钱是不允许的；必须有一种非常特殊的概率分布。在此情况下，我开出来 100 块钱，另一个盒子有多少钱，是一个条件概率问题，并非 50/200 块钱一定等概率出现。
+
+多个变量（>=3） 的独立性：
+
+Pairwise independent 和 Mutually independent 并不等价！
+
+x1,x2,x3 \in {0, 1} (randomly)
+
+A: 2|(x1+x2) B: 2|(x1+x3) C: 2|(x2+x_3)：
+
+A 与 B 独立，A 与 C 独立，B 与 C 独立，但 A 与 B 与 C 不独立！
